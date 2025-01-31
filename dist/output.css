@@ -1198,4 +1198,47 @@ video {
     padding-left: 2rem;
     padding-right: 2rem;
   }
+}
+
+/* Add this in the appropriate section with other background colors */
+.bg-\[\#FECDD3\] {
+  background-color: #FECDD3;
+}
+
+/* Add these with other style rules */
+[style*="transition-delay: 0ms"] {
+  transition-delay: 0ms;
+}
+
+[style*="transition-delay: 75ms"] {
+  transition-delay: 75ms;
+}
+
+[style*="transition-delay: 150ms"] {
+  transition-delay: 150ms;
+}
+
+[style*="transition-delay: 225ms"] {
+  transition-delay: 225ms;
+}
+
+[style*="transition-delay: 300ms"] {
+  transition-delay: 300ms;
+}
+
+/* Remove these since we're not using them anymore */
+.\[transition-delay\:75ms\] {
+  transition-delay: 75ms;
+}
+
+.\[transition-delay\:150ms\] {
+  transition-delay: 150ms;
+}
+
+.\[transition-delay\:225ms\] {
+  transition-delay: 225ms;
+}
+
+.\[transition-delay\:300ms\] {
+  transition-delay: 300ms;
 } 
