@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Text Selection Menu</title>
+    <link href="./dist/output.css" rel="stylesheet">
+    <script src="https://unpkg.com/feather-icons"></script>
+    <style>
+        /* Custom styles for selection menu animation */
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .menu-item-appear {
+            animation: scaleIn 0.2s ease-out forwards;
+        }
+        .selection-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px;
+            z-index: 1000;
+            background: transparent;
+        }
+        .toolbar-group {
+            background: white;
+            border: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            border-radius: 9999px;
+            padding: 4px;
+            transform: scale(0);
+            transition: all 0.2s ease-out;
+        }
+        .toolbar-group:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+        .toolbar-button {
+            background: transparent;
+            border: none;
+            padding: 6px 12px;
+            cursor: pointer;
+            font-size: 14px;
+            color: #4b5563;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .toolbar-button:hover {
+            background: #f3f4f6;
+        }
+        .toolbar-divider {
+            display: none;
+        }
+        .format-buttons-group {
+            display: flex;
+            gap: 2px;
+            background: rgba(40, 44, 52, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+            padding: 4px;
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+        .color-buttons-group {
+            background: rgba(40, 44, 52, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 9999px;
+            padding: 4px;
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+        .color-buttons-group:hover {
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        }
+        .format-button {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 28px;
+            height: 28px;
+            padding: 0;
+            background: transparent;
+            border: none;
+            color: rgba(255, 255, 255, 0.9);
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+        }
+        .format-button:hover {
+            background: rgba(255, 255, 255, 0.15);
+        }
+        .format-button.bg-gray-200 {
+            background: rgba(255, 255, 255, 0.25);
+        }
+        #document-content {
+            line-height: 1.6;
+            caret-color: #3b82f6;
+            min-height: calc(100vh - 160px); /* Was 120px */
+            padding-top: 20px; /* Add some top padding */
+        }
+        #document-content:empty:before {
+            content: attr(data-placeholder);
+            color: #94a3b8;
+            pointer-events: none;
+        }
+        #document-content:focus-visible {
+            outline: none;
+        }
+        .prose h1 {
+            font-size: 2.25rem;
+            margin-bottom: 1.5rem;
+        }
+        .prose p {
+            margin-bottom: 1rem;
+            padding: 2px 0;
+        }
+        .prose p:last-child {
+            margin-bottom: 0;
+        }
+        .prose p:hover {
+            background: #f8fafc;
+            border-radius: 4px;
+        }
+        .color-button {
+            position: relative;
+            z-index: 1001;
+            background: transparent;
+            width: 28px;
+            height: 28px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0 2px;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+        }
+        .color-button:hover {
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        .color-dot {
+            display: block;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+        }
+        /* Optional: Add subtle fade-out animation for info banner */
+        @keyframes fadeOut {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        .fade-out {
+            animation: fadeOut 0.5s ease-out forwards;
+        }
+        /* Update individual action buttons to be separate pills */
+        .action-button {
+            background: rgba(40, 44, 52, 0.75);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            padding: 6px 12px;
+            border-radius: 9999px;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.95);
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 
+                0 2px 4px rgba(0, 0, 0, 0.1),
+                inset 0 1px 1px rgba(255, 255, 255, 0.1);
+        }
+        .action-button:hover {
+            background: rgba(50, 54, 62, 0.85);
+            transform: translateY(-1px);
+            box-shadow: 
+                0 4px 8px rgba(0, 0, 0, 0.15),
+                inset 0 1px 1px rgba(255, 255, 255, 0.2);
+        }
+        /* Add styles for the two-row layout */
+        .selection-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px;
+            z-index: 1000;
+        }
+        /* Add styles for the action buttons row */
+        .action-buttons-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        /* Add styles for the formatting buttons row */
+        .formatting-buttons-row {
+            display: flex;
+            gap: 8px;
+            justify-content: center;
+        }
+        body {
+            display: flow-root; /* Contains margins */
+        }
+        .max-w-4xl.mx-auto.px-8.mt-2 {
+            margin-top: 2rem; /* Increase from mt-2 (0.5rem) to mt-8 (2rem) */
+            padding-top: 1rem; /* Add pt-4 */
+        }
+        /* Update the animation styles for popup menu */
+        .selection-toolbar {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 4px;
+            z-index: 1000;
+        }
+        /* Add staggered animations for menu items */
+        .action-buttons-row {
+            transform: scale(0);
+            transition: all 0.2s ease-out;
+            transition-delay: 0ms;
+        }
+        .formatting-buttons-row {
+            transform: scale(0);
+            transition: all 0.2s ease-out;
+            transition-delay: 75ms;
+        }
+        /* Show animation class */
+        .menu-visible .action-buttons-row,
+        .menu-visible .formatting-buttons-row {
+            transform: scale(1);
+        }
+        /* Remove the old scaleIn animation */
+        @keyframes scaleIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .menu-item-appear {
+            animation: scaleIn 0.2s ease-out forwards;
+        }
+    </style>
+</head>
+<body class="bg-white min-h-screen">
+    <!-- Info Message - Now a subtle top banner -->
+    <div id="info-banner" class="text-sm text-gray-600 border-b border-gray-100 py-2 px-4 transition-opacity duration-300">
+        <div class="max-w-4xl mx-auto flex items-center justify-between">
+            <div class="flex items-center">
+                <i data-feather="info" class="inline-block w-4 h-4 mr-2 text-gray-400"></i>
+                This is an interactive document. Click anywhere to edit. Select text to format using the floating toolbar.
+            </div>
+            <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
+                <i data-feather="x" class="w-4 h-4"></i>
+            </button>
+        </div>
+    </div>
+
+    <!-- Main content - Clean and borderless -->
+    <div class="max-w-4xl mx-auto px-8 mt-2">
+        <!-- Document Content -->
+        <div id="document-content" 
+             class="prose max-w-none focus:outline-none" 
+             contenteditable="true"
+             data-placeholder="Start typing here...">
+            <h1 class="text-4xl font-bold text-gray-800 mb-8">Welcome to Our Sample Site</h1>
+            <p class="text-lg text-gray-700 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p class="text-lg text-gray-700 mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p class="text-lg text-gray-700">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            <p class="text-lg text-gray-700 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p class="text-lg text-gray-700 mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p class="text-lg text-gray-700">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            <p class="text-lg text-gray-700 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+            <p class="text-lg text-gray-700 mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
+            <p class="text-lg text-gray-700">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+        </div>
+    </div>
+
+    <!-- Selection Menu (Hidden by default) -->
+    <div id="selection-menu" class="fixed hidden opacity-0 transition-all duration-200">
+        <div class="selection-toolbar">
+            <!-- Top row: Action buttons -->
+            <div class="action-buttons-row">
+                <button class="action-button">Correct</button>
+                <button class="action-button">Define</button>
+                <button class="action-button">Explain</button>
+            </div>
+            
+            <!-- Bottom row: Formatting buttons -->
+            <div class="formatting-buttons-row">
+                <!-- Format buttons group -->
+                <div class="format-buttons-group">
+                    <button class="format-button font-bold" onclick="document.execCommand('bold')">B</button>
+                    <button class="format-button italic" onclick="document.execCommand('italic')">I</button>
+                    <button class="format-button underline" onclick="document.execCommand('underline')">U</button>
+                </div>
+                
+                <!-- Color buttons group -->
+                <div class="color-buttons-group">
+                    <button 
+                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
+                        title="Pink Highlight"
+                        onclick="document.execCommand('backColor', false, '#FECDD3')">
+                        <span class="color-dot" style="background-color: #FECDD3;"></span>
+                    </button>
+                    <button 
+                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
+                        title="Orange Highlight"
+                        onclick="document.execCommand('backColor', false, '#FED7AA')">
+                        <span class="color-dot" style="background-color: #FED7AA;"></span>
+                    </button>
+                    <button 
+                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
+                        title="Yellow Highlight"
+                        onclick="document.execCommand('backColor', false, '#FEF08A')">
+                        <span class="color-dot" style="background-color: #FEF08A;"></span>
+                    </button>
+                    <button 
+                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
+                        title="Green Highlight"
+                        onclick="document.execCommand('backColor', false, '#BBF7D0')">
+                        <span class="color-dot" style="background-color: #BBF7D0;"></span>
+                    </button>
+                    <button 
+                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
+                        title="Blue Highlight"
+                        onclick="document.execCommand('backColor', false, '#BFDBFE')">
+                        <span class="color-dot" style="background-color: #BFDBFE;"></span>
+                    </button>
+                </div>
+                
+                <!-- Format toggle -->
+                <button id="format-toggle" class="action-button p-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="4" y1="7" x2="20" y2="7"></line>
+                        <line x1="10" y1="11" x2="20" y2="11"></line>
+                        <line x1="6" y1="15" x2="20" y2="15"></line>
+                        <line x1="8" y1="19" x2="20" y2="19"></line>
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Fixed Menu Button -->
+    <div class="fixed bottom-8 right-8">
+        <!-- Menu Items (Hidden by default) -->
+        <div id="fixed-menu" class="absolute bottom-full right-0 mb-4 opacity-0 invisible transition-all duration-300">
+            <div class="flex flex-col gap-4 items-end">
+                <!-- Search -->
+                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0">
+                    <i data-feather="search" class="w-5 h-5 text-gray-700"></i>
+                </div>
+                <!-- Plus -->
+                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0 [transition-delay:75ms]">
+                    <i data-feather="plus" class="w-5 h-5 text-gray-700"></i>
+                </div>
+                <!-- Heart -->
+                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0 [transition-delay:150ms]">
+                    <i data-feather="heart" class="w-5 h-5 text-gray-700"></i>
+                </div>
+                <!-- Share -->
+                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0 [transition-delay:225ms]">
+                    <i data-feather="share-2" class="w-5 h-5 text-gray-700"></i>
+                </div>
+                <!-- Star -->
+                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0 [transition-delay:300ms]">
+                    <i data-feather="star" class="w-5 h-5 text-gray-700"></i>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Menu Toggle Button -->
+        <button id="menu-toggle" class="bg-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
+            <i data-feather="menu" class="w-6 h-6 text-gray-700"></i>
+        </button>
+    </div>
+
+    <script>
+        feather.replace();
+
+        const selectionMenu = document.getElementById('selection-menu');
+        const fixedMenu = document.getElementById('fixed-menu');
+        const menuToggle = document.getElementById('menu-toggle');
+        const formatToggle = document.getElementById('format-toggle');
+        let isSelecting = false;
+        let selectionTimeout;
+        let isFixedMenuOpen = false;
+
+        // Function to hide selection menu
+        const hideMenu = () => {
+            selectionMenu.classList.remove('menu-visible');
+            setTimeout(() => {
+                selectionMenu.classList.add('hidden');
+                selectionMenu.classList.add('opacity-0');
+            }, 200);
+        };
+
+        // Function to toggle fixed menu
+        const toggleFixedMenu = () => {
+            const icons = fixedMenu.querySelectorAll('.transform');
+            if (!isFixedMenuOpen) {
+                fixedMenu.classList.remove('invisible');
+                fixedMenu.classList.remove('opacity-0');
+                icons.forEach(icon => icon.classList.remove('scale-0'));
+            } else {
+                icons.forEach(icon => icon.classList.add('scale-0'));
+                fixedMenu.classList.add('opacity-0');
+                setTimeout(() => {
+                    fixedMenu.classList.add('invisible');
+                }, 300);
+            }
+            isFixedMenuOpen = !isFixedMenuOpen;
+        };
+
+        // Function to show selection menu
+        const showMenu = (selection) => {
+            const range = selection.getRangeAt(0);
+            const rect = range.getBoundingClientRect();
+            
+            // First position the menu
+            selectionMenu.classList.remove('hidden');
+            selectionMenu.style.visibility = 'hidden';
+            selectionMenu.classList.remove('opacity-0');
+            
+            // Calculate position...
+            const menuRect = selectionMenu.getBoundingClientRect();
+            let left = rect.left + (rect.width / 2) - (menuRect.width / 2);
+            let top = rect.top - menuRect.height - 10 + window.scrollY;
+            
+            // Adjust for viewport boundaries...
+            left = Math.max(10, Math.min(left, window.innerWidth - menuRect.width - 10));
+            if (top - window.scrollY < 10) {
+                top = rect.bottom + 10 + window.scrollY;
+            }
+            
+            // Apply position
+            selectionMenu.style.left = `${left}px`;
+            selectionMenu.style.top = `${top}px`;
+            
+            // Trigger animation
+            selectionMenu.style.visibility = 'visible';
+            requestAnimationFrame(() => {
+                selectionMenu.classList.add('menu-visible');
+            });
+        };
+
+        // Selection menu event listeners
+        document.addEventListener('selectionchange', () => {
+            if (!isSelecting) {
+                clearTimeout(selectionTimeout);
+            }
+        });
+
+        // Hide selection menu when clicking outside
+        document.addEventListener('mousedown', (e) => {
+            // Only hide menu if we're not in the process of selecting text
+            if (!selectionMenu.contains(e.target) && !isSelecting) {
+                hideMenu();
+            }
+        });
+
+        // Show selection menu when mouse is released with selection
+        document.addEventListener('mouseup', () => {
+            clearTimeout(selectionTimeout);
+            const selection = window.getSelection();
+            
+            if (selection.toString().length > 0) {
+                isSelecting = true;
+                
+                // Longer delay to ensure selection is stable
+                selectionTimeout = setTimeout(() => {
+                    showMenu(selection);
+                    // Reset after menu is shown
+                    setTimeout(() => {
+                        isSelecting = false;
+                    }, 200);
+                }, 200);
+            }
+        });
+
+        // Fixed menu toggle
+        menuToggle.addEventListener('click', toggleFixedMenu);
+
+        // Hide fixed menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (isFixedMenuOpen && !e.target.closest('.fixed')) {
+                toggleFixedMenu();
+            }
+        });
+
+        // Add active state for format buttons
+        document.querySelectorAll('.format-button').forEach(button => {
+            button.addEventListener('click', function() {
+                this.classList.toggle('bg-gray-200');
+            });
+        });
+
+        // Add hover effect for editable content
+        document.querySelectorAll('[contenteditable="true"]').forEach(element => {
+            element.addEventListener('mouseover', function() {
+                if (!this.querySelector(':focus')) {
+                    this.style.cursor = 'text';
+                }
+            });
+        });
+
+        // Optional: Auto-hide info banner after 5 seconds
+        setTimeout(() => {
+            const banner = document.getElementById('info-banner');
+            if (banner) {
+                banner.classList.add('fade-out');
+                setTimeout(() => {
+                    banner.style.visibility = 'hidden';
+                }, 500);
+            }
+        }, 5000);
+    </script>
+</body>
+</html>
