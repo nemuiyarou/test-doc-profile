@@ -3,278 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Text Selection Menu</title>
+    <title>Interactive ESL Document</title>
     <link href="./dist/output.css" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
-        /* Custom styles for selection menu animation */
-        @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .menu-item-appear {
-            animation: scaleIn 0.2s ease-out forwards;
-        }
-        .selection-toolbar {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 4px;
-            z-index: 1000;
-            background: transparent;
-        }
-        .toolbar-group {
-            background: white;
-            border: none;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            border-radius: 9999px;
-            padding: 4px;
-            transform: scale(0);
-            transition: all 0.2s ease-out;
-        }
-        .toolbar-group:hover {
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        }
-        .toolbar-button {
-            background: transparent;
-            border: none;
-            padding: 6px 12px;
-            cursor: pointer;
-            font-size: 14px;
-            color: #4b5563;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .toolbar-button:hover {
-            background: #f3f4f6;
-        }
-        .toolbar-divider {
-            display: none;
-        }
-        .format-buttons-group {
-            display: flex;
-            gap: 2px;
-            background: rgba(40, 44, 52, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 9999px;
-            padding: 4px;
-            box-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.1),
-                inset 0 1px 1px rgba(255, 255, 255, 0.1);
-        }
-        .color-buttons-group {
-            background: rgba(40, 44, 52, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 9999px;
-            padding: 4px;
-            box-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.1),
-                inset 0 1px 1px rgba(255, 255, 255, 0.1);
-        }
-        .color-buttons-group:hover {
-            box-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.15),
-                inset 0 1px 1px rgba(255, 255, 255, 0.2);
-        }
-        .format-button {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 28px;
-            height: 28px;
-            padding: 0;
-            background: transparent;
-            border: none;
-            color: rgba(255, 255, 255, 0.9);
-            cursor: pointer;
-            border-radius: 4px;
-            transition: all 0.2s;
-        }
-        .format-button:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        .format-button.bg-gray-200 {
-            background: rgba(255, 255, 255, 0.25);
-        }
-        #document-content {
-            line-height: 1.6;
-            caret-color: #3b82f6;
-            min-height: calc(100vh - 160px); /* Was 120px */
-            padding-top: 20px; /* Add some top padding */
-        }
-        #document-content:empty:before {
-            content: attr(data-placeholder);
-            color: #94a3b8;
-            pointer-events: none;
-        }
-        #document-content:focus-visible {
-            outline: none;
-        }
-        .prose h1 {
-            font-size: 2.25rem;
-            margin-bottom: 1.5rem;
-        }
-        .prose p {
-            margin-bottom: 1rem;
-            padding: 2px 0;
-        }
-        .prose p:last-child {
-            margin-bottom: 0;
-        }
-        .prose p:hover {
-            background: #f8fafc;
-            border-radius: 4px;
-        }
-        .color-button {
-            position: relative;
-            z-index: 1001;
-            background: transparent;
-            width: 28px;
-            height: 28px;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            padding: 0;
-            margin: 0 2px;
-            border: 1px solid rgba(255, 255, 255, 0.1) !important;
-        }
-        .color-button:hover {
-            border-color: rgba(255, 255, 255, 0.3) !important;
-        }
-        .color-dot {
-            display: block;
-            width: 18px;
-            height: 18px;
-            border-radius: 50%;
-            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-        }
-        /* Optional: Add subtle fade-out animation for info banner */
-        @keyframes fadeOut {
-            from { opacity: 1; }
-            to { opacity: 0; }
-        }
-        .fade-out {
-            animation: fadeOut 0.5s ease-out forwards;
-        }
-        /* Update individual action buttons to be separate pills */
-        .action-button {
-            background: rgba(40, 44, 52, 0.75);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            padding: 6px 12px;
-            border-radius: 9999px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.95);
-            cursor: pointer;
-            transition: all 0.2s;
-            box-shadow: 
-                0 2px 4px rgba(0, 0, 0, 0.1),
-                inset 0 1px 1px rgba(255, 255, 255, 0.1);
-        }
-        .action-button:hover {
-            background: rgba(50, 54, 62, 0.85);
-            transform: translateY(-1px);
-            box-shadow: 
-                0 4px 8px rgba(0, 0, 0, 0.15),
-                inset 0 1px 1px rgba(255, 255, 255, 0.2);
-        }
-        /* Add styles for the two-row layout */
-        .selection-toolbar {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 4px;
-            z-index: 1000;
-        }
-        /* Add styles for the action buttons row */
-        .action-buttons-row {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-        /* Add styles for the formatting buttons row */
-        .formatting-buttons-row {
-            display: flex;
-            gap: 8px;
-            justify-content: center;
-        }
-        body {
-            display: flow-root; /* Contains margins */
-        }
-        .max-w-4xl.mx-auto.px-8.mt-2 {
-            margin-top: 2rem; /* Increase from mt-2 (0.5rem) to mt-8 (2rem) */
-            padding-top: 1rem; /* Add pt-4 */
-        }
-        /* Update the animation styles for popup menu */
-        .selection-toolbar {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            padding: 4px;
-            z-index: 1000;
-        }
-        /* Add staggered animations for menu items */
-        .action-buttons-row {
-            transform: scale(0);
-            transition: all 0.2s ease-out;
-            transition-delay: 0ms;
-        }
-        .formatting-buttons-row {
-            transform: scale(0);
-            transition: all 0.2s ease-out;
-            transition-delay: 75ms;
-        }
-        /* Show animation class */
-        .menu-visible .action-buttons-row,
-        .menu-visible .formatting-buttons-row {
-            transform: scale(1);
-        }
-        /* Remove the old scaleIn animation */
-        @keyframes scaleIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .menu-item-appear {
-            animation: scaleIn 0.2s ease-out forwards;
-        }
+        /* --- Base Styles --- */
+        body { display: flow-root; /* Contains margins */ }
+        .max-w-4xl.mx-auto.px-8.mt-2 { margin-top: 2rem; padding-top: 1rem; }
+        #document-content { line-height: 1.6; caret-color: #3b82f6; min-height: calc(100vh - 120px); /* Back to original height */ padding-top: 20px; padding-bottom: 20px; }
+        #document-content:empty:before { content: attr(data-placeholder); color: #94a3b8; pointer-events: none; }
+        #document-content:focus-visible { outline: none; }
+        .prose h1 { font-size: 2.25rem; margin-bottom: 1.5rem; }
+        .prose p { margin-bottom: 1rem; padding: 2px 0; }
+        .prose p:last-child { margin-bottom: 0; }
+        .prose p:hover { background: #f8fafc; border-radius: 4px; }
+
+        /* --- Selection Toolbar Styles --- */
+        .selection-toolbar { display: flex; flex-direction: column; gap: 8px; padding: 4px; z-index: 1000; }
+        .action-buttons-row { display: flex; gap: 8px; justify-content: center; transform: scale(0); transition: all 0.2s ease-out; transition-delay: 0ms; }
+        .formatting-buttons-row { display: flex; gap: 8px; justify-content: center; transform: scale(0); transition: all 0.2s ease-out; transition-delay: 75ms; }
+        .menu-visible .action-buttons-row, .menu-visible .formatting-buttons-row { transform: scale(1); }
+        @keyframes scaleIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .menu-item-appear { animation: scaleIn 0.2s ease-out forwards; }
+
+        .toolbar-group { background: white; border: none; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-radius: 9999px; padding: 4px;  transition: all 0.2s ease-out; }
+        .toolbar-group:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); }
+        .format-buttons-group, .color-buttons-group {  display: flex; gap: 4px;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.3); border-radius: 9999px; padding: 4px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); } /* Lighter shadow */
+        .format-buttons-group:hover, .color-buttons-group:hover { box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); }
+
+        .format-button, .align-button { display: inline-flex; align-items: center; justify-content: center; width: 28px; height: 28px; padding: 0; background: transparent; border: none; color: #4b5563; /* Darker text */ cursor: pointer; border-radius: 4px; transition: all 0.2s; }
+        .format-button:hover, .align-button:hover  { background: rgba(0, 0, 0, 0.05); /* Lighter hover */ }
+        .format-button.bg-gray-200 { background: rgba(0, 0, 0, 0.1); /* Slightly darker active state */ }
+
+        .action-button { background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);  border: 1px solid rgba(255, 255, 255, 0.3); padding: 6px 12px; border-radius: 9999px;  font-size: 14px; color: #4b5563; cursor: pointer; transition: all 0.2s; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05); }
+        .action-button:hover { background: rgba(255, 255, 255, 0.9); transform: translateY(-1px); box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05); }
+
+        /* --- Color and Highlight Buttons --- */
+       .color-button, .highlight-button { position: relative; background: transparent; width: 28px; height: 28px; display: inline-flex; align-items: center; justify-content: center; padding: 0; margin: 0 2px; border: 1px solid rgba(0, 0, 0, 0.1) !important;  border-radius: 4px; } /* Consistent border */
+        .color-button:hover, .highlight-button:hover { border-color: rgba(0, 0, 0, 0.2) !important;  } /* Darker border on hover */
+        .color-dot, .highlight-dot { display: block; width: 18px; height: 18px; border-radius: 50%; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2); }
+
+        /* --- Fixed Menu Styles --- */
+        .fixed-menu-container { position: fixed; bottom: 2rem; right: 2rem; display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; z-index: 999; }
+        .menu-trigger { background-color: #3b82f6; color: white; width: 3.5rem; height: 3.5rem; border-radius: 9999px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .menu-trigger:hover { background-color: #2563eb; transform: scale(1.05); }
+        .menu-options { position: absolute; bottom: 100%; right: 0; background-color: white; border-radius: 0.5rem; padding: 0.5rem; margin-bottom: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); opacity: 0; transform: translateY(10px); pointer-events: none; transition: all 0.3s ease; }
+        .menu-options.active { opacity: 1; transform: translateY(0); pointer-events: auto; }
+        .menu-option { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 1rem; color: #4b5563; text-decoration: none; white-space: nowrap; transition: background-color 0.2s; border-radius: 0.25rem; }
+        .menu-option:hover { background-color: #f3f4f6; }
+
     </style>
 </head>
 <body class="bg-white min-h-screen">
-    <!-- Info Message - Now a subtle top banner -->
-    <div id="info-banner" class="text-sm text-gray-600 border-b border-gray-100 py-2 px-4 transition-opacity duration-300">
-        <div class="max-w-4xl mx-auto flex items-center justify-between">
-            <div class="flex items-center">
-                <i data-feather="info" class="inline-block w-4 h-4 mr-2 text-gray-400"></i>
-                This is an interactive document. Click anywhere to edit. Select text to format using the floating toolbar.
-            </div>
-            <button onclick="this.parentElement.parentElement.remove()" class="text-gray-400 hover:text-gray-600">
-                <i data-feather="x" class="w-4 h-4"></i>
-            </button>
-        </div>
-    </div>
 
-    <!-- Main content - Clean and borderless -->
+    <!-- Main content -->
     <div class="max-w-4xl mx-auto px-8 mt-2">
         <!-- Document Content -->
-        <div id="document-content" 
-             class="prose max-w-none focus:outline-none" 
+        <div id="document-content"
+             class="prose max-w-none focus:outline-none"
              contenteditable="true"
              data-placeholder="Start typing here...">
-            <h1 class="text-4xl font-bold text-gray-800 mb-8">Sample layout site</h1>
-            <p class="text-lg text-gray-700 mb-4">The menu at the bottom has a link to a very basic sample profile - Text on this page is editable - not all features are implemented</p>
-            <p class="text-lg text-gray-700 mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <p class="text-lg text-gray-700">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            <h1 class="text-4xl font-bold text-gray-800 mb-8">Sample Interactive Document</h1>
+            <p class="text-lg text-gray-700 mb-4">This is a mockup of the interactive document for the ESL tool.  Select text to see the formatting and AI assistance options.</p>
             <p class="text-lg text-gray-700 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            <p class="text-lg text-gray-700 mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <p class="text-lg text-gray-700">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
-            <p class="text-lg text-gray-700 mb-4">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
-            <p class="text-lg text-gray-700 mb-4">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-            <p class="text-lg text-gray-700">Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis et quasi architecto beatae vitae dicta sunt explicabo.</p>
+            <p class="text-lg text-gray-700">Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur.  Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
         </div>
     </div>
 
@@ -287,7 +80,7 @@
                 <button class="action-button">Define</button>
                 <button class="action-button">Explain</button>
             </div>
-            
+
             <!-- Bottom row: Formatting buttons -->
             <div class="formatting-buttons-row">
                 <!-- Format buttons group -->
@@ -296,85 +89,81 @@
                     <button class="format-button italic" onclick="document.execCommand('italic')">I</button>
                     <button class="format-button underline" onclick="document.execCommand('underline')">U</button>
                 </div>
-                
-                <!-- Color buttons group -->
+
+                 <!-- Text Color Buttons -->
                 <div class="color-buttons-group">
-                    <button 
-                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
-                        title="Pink Highlight"
-                        onclick="document.execCommand('backColor', false, '#FECDD3')">
-                        <span class="color-dot" style="background-color: #FECDD3;"></span>
+                    <button class="color-button" title="Pastel Pink" onclick="document.execCommand('foreColor', false, '#F9A8D4')">
+                        <span class="color-dot" style="background-color: #F9A8D4;"></span>
                     </button>
-                    <button 
-                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
-                        title="Orange Highlight"
-                        onclick="document.execCommand('backColor', false, '#FED7AA')">
-                        <span class="color-dot" style="background-color: #FED7AA;"></span>
+                    <button class="color-button" title="Pastel Blue" onclick="document.execCommand('foreColor', false, '#A7C7E7')">
+                        <span class="color-dot" style="background-color: #A7C7E7;"></span>
                     </button>
-                    <button 
-                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
-                        title="Yellow Highlight"
-                        onclick="document.execCommand('backColor', false, '#FEF08A')">
-                        <span class="color-dot" style="background-color: #FEF08A;"></span>
+                    <button class="color-button" title="Pastel Green" onclick="document.execCommand('foreColor', false, '#A9DFBF')">
+                        <span class="color-dot" style="background-color: #A9DFBF;"></span>
                     </button>
-                    <button 
-                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
-                        title="Green Highlight"
-                        onclick="document.execCommand('backColor', false, '#BBF7D0')">
-                        <span class="color-dot" style="background-color: #BBF7D0;"></span>
-                    </button>
-                    <button 
-                        class="color-button rounded-full border border-gray-200 hover:border-gray-400 transition-colors" 
-                        title="Blue Highlight"
-                        onclick="document.execCommand('backColor', false, '#BFDBFE')">
-                        <span class="color-dot" style="background-color: #BFDBFE;"></span>
+                    <button class="color-button" title="Pastel Yellow" onclick="document.execCommand('foreColor', false, '#FDE68A')">
+                        <span class="color-dot" style="background-color: #FDE68A;"></span>
                     </button>
                 </div>
-                
-                <!-- Format toggle -->
-                <button id="format-toggle" class="action-button p-2">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <line x1="4" y1="7" x2="20" y2="7"></line>
-                        <line x1="10" y1="11" x2="20" y2="11"></line>
-                        <line x1="6" y1="15" x2="20" y2="15"></line>
-                        <line x1="8" y1="19" x2="20" y2="19"></line>
-                    </svg>
-                </button>
+
+                <!-- Highlight Buttons -->
+                <div class="color-buttons-group">
+                    <button class="highlight-button" title="Yellow Highlight" onclick="document.execCommand('backColor', false, 'yellow')">
+                        <span class="highlight-dot" style="background-color: yellow;"></span>
+                    </button>
+                     <button class="highlight-button" title="Pink Highlight" onclick="document.execCommand('backColor', false, '#FECDD3')">
+                        <span class="highlight-dot" style="background-color: #FECDD3;"></span>
+                    </button>
+                    <button class="highlight-button" title="Blue Highlight" onclick="document.execCommand('backColor', false, '#BFDBFE')">
+                        <span class="highlight-dot" style="background-color: #BFDBFE;"></span>
+                    </button>
+                    <button class="highlight-button" title="Green Highlight" onclick="document.execCommand('backColor', false, '#BBF7D0')">
+                        <span class="highlight-dot" style="background-color: #BBF7D0;"></span>
+                    </button>
+                </div>
+
+                <!-- Alignment Buttons -->
+                <div class="format-buttons-group">
+                     <button class="align-button" onclick="document.execCommand('justifyLeft')" title="Align Left">
+                        <i data-feather="align-left" class="w-4 h-4"></i>
+                    </button>
+                    <button class="align-button" onclick="document.execCommand('justifyCenter')" title="Align Center">
+                        <i data-feather="align-center" class="w-4 h-4"></i>
+                    </button>
+                    <button class="align-button" onclick="document.execCommand('justifyRight')" title="Align Right">
+                        <i data-feather="align-right" class="w-4 h-4"></i>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Fixed Menu Button -->
-    <div class="fixed bottom-8 right-8">
-        <!-- Menu Items (Hidden by default) -->
-        <div id="fixed-menu" class="absolute bottom-full right-0 mb-4 opacity-0 invisible transition-all duration-300">
-            <div class="flex flex-col gap-4 items-end">
-                <!-- Profile Link - New pink highlighted button -->
-                <a href="profile.html" class="bg-[#FECDD3] p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0" style="transition-delay: 0ms">
-                    <i data-feather="user" class="w-5 h-5 text-gray-700"></i>
-                </a>
-                <!-- Search -->
-                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0" style="transition-delay: 75ms">
-                    <i data-feather="search" class="w-5 h-5 text-gray-700"></i>
-                </div>
-                <!-- Plus -->
-                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0" style="transition-delay: 150ms">
-                    <i data-feather="plus" class="w-5 h-5 text-gray-700"></i>
-                </div>
-                <!-- Heart -->
-                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0" style="transition-delay: 225ms">
-                    <i data-feather="heart" class="w-5 h-5 text-gray-700"></i>
-                </div>
-                <!-- Share -->
-                <div class="bg-white p-3 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 cursor-pointer transform scale-0" style="transition-delay: 300ms">
-                    <i data-feather="share-2" class="w-5 h-5 text-gray-700"></i>
-                </div>
-            </div>
+    <!-- Fixed Menu (Teacher-side) -->
+    <div class="fixed-menu-container">
+        <div class="menu-options" id="menuOptions">
+            <a href="profile.html" class="menu-option">
+                <i data-feather="user" class="w-5 h-5"></i>
+                Profile
+            </a>
+            <button class="menu-option" onclick="lockEdits()">
+                <i data-feather="lock" class="w-5 h-5"></i>
+                Lock Edits
+            </button>
+            <button class="menu-option" onclick="getShareLink()">
+                <i data-feather="share-2" class="w-5 h-5"></i>
+                Share
+            </button>
+            <button class="menu-option" onclick="summarizeDocument()">
+                <i data-feather="file-text" class="w-5 h-5"></i>
+                Summarize
+            </button>
+            <button class="menu-option" onclick="createHomework()">
+                <i data-feather="book-open" class="w-5 h-5"></i>
+                Create Homework
+            </button>
         </div>
-        
-        <!-- Menu Toggle Button -->
-        <button id="menu-toggle" class="bg-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300">
-            <i data-feather="menu" class="w-6 h-6 text-gray-700"></i>
+        <button class="menu-trigger" id="menuTrigger">
+            <i data-feather="menu" class="w-6 h-6"></i>
         </button>
     </div>
 
@@ -382,12 +171,8 @@
         feather.replace();
 
         const selectionMenu = document.getElementById('selection-menu');
-        const fixedMenu = document.getElementById('fixed-menu');
-        const menuToggle = document.getElementById('menu-toggle');
-        const formatToggle = document.getElementById('format-toggle');
         let isSelecting = false;
         let selectionTimeout;
-        let isFixedMenuOpen = false;
 
         // Function to hide selection menu
         const hideMenu = () => {
@@ -398,48 +183,31 @@
             }, 200);
         };
 
-        // Function to toggle fixed menu
-        const toggleFixedMenu = () => {
-            const icons = fixedMenu.querySelectorAll('.transform');
-            if (!isFixedMenuOpen) {
-                fixedMenu.classList.remove('invisible');
-                fixedMenu.classList.remove('opacity-0');
-                icons.forEach(icon => icon.classList.remove('scale-0'));
-            } else {
-                icons.forEach(icon => icon.classList.add('scale-0'));
-                fixedMenu.classList.add('opacity-0');
-                setTimeout(() => {
-                    fixedMenu.classList.add('invisible');
-                }, 300);
-            }
-            isFixedMenuOpen = !isFixedMenuOpen;
-        };
-
         // Function to show selection menu
         const showMenu = (selection) => {
             const range = selection.getRangeAt(0);
             const rect = range.getBoundingClientRect();
-            
+
             // First position the menu
             selectionMenu.classList.remove('hidden');
             selectionMenu.style.visibility = 'hidden';
             selectionMenu.classList.remove('opacity-0');
-            
+
             // Calculate position...
             const menuRect = selectionMenu.getBoundingClientRect();
             let left = rect.left + (rect.width / 2) - (menuRect.width / 2);
             let top = rect.top - menuRect.height - 10 + window.scrollY;
-            
+
             // Adjust for viewport boundaries...
             left = Math.max(10, Math.min(left, window.innerWidth - menuRect.width - 10));
             if (top - window.scrollY < 10) {
                 top = rect.bottom + 10 + window.scrollY;
             }
-            
+
             // Apply position
             selectionMenu.style.left = `${left}px`;
             selectionMenu.style.top = `${top}px`;
-            
+
             // Trigger animation
             selectionMenu.style.visibility = 'visible';
             requestAnimationFrame(() => {
@@ -466,10 +234,10 @@
         document.addEventListener('mouseup', () => {
             clearTimeout(selectionTimeout);
             const selection = window.getSelection();
-            
+
             if (selection.toString().length > 0) {
                 isSelecting = true;
-                
+
                 // Longer delay to ensure selection is stable
                 selectionTimeout = setTimeout(() => {
                     showMenu(selection);
@@ -481,15 +249,6 @@
             }
         });
 
-        // Fixed menu toggle
-        menuToggle.addEventListener('click', toggleFixedMenu);
-
-        // Hide fixed menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (isFixedMenuOpen && !e.target.closest('.fixed')) {
-                toggleFixedMenu();
-            }
-        });
 
         // Add active state for format buttons
         document.querySelectorAll('.format-button').forEach(button => {
@@ -507,16 +266,41 @@
             });
         });
 
-        // Optional: Auto-hide info banner after 5 seconds
-        setTimeout(() => {
-            const banner = document.getElementById('info-banner');
-            if (banner) {
-                banner.classList.add('fade-out');
-                setTimeout(() => {
-                    banner.style.visibility = 'hidden';
-                }, 500);
+        // --- Mockup Functions for Fixed Menu ---
+        function lockEdits() {
+            alert("Document edits locked (Mockup)");
+        }
+
+        function getShareLink() {
+            alert("Share link copied to clipboard (Mockup)");
+        }
+
+        function summarizeDocument() {
+            alert("Document summarized (Mockup)");
+        }
+
+        function createHomework() {
+            alert("Homework created (Mockup)");
+        }
+
+        // Menu Toggle functionality
+        const menuTrigger = document.getElementById('menuTrigger');
+        const menuOptions = document.getElementById('menuOptions');
+        let isMenuOpen = false;
+
+        menuTrigger.addEventListener('click', () => {
+            isMenuOpen = !isMenuOpen;
+            menuOptions.classList.toggle('active');
+        });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (isMenuOpen && !e.target.closest('.fixed-menu-container')) {
+                isMenuOpen = false;
+                menuOptions.classList.remove('active');
             }
-        }, 5000);
+        });
+
     </script>
 </body>
 </html>

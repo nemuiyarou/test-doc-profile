@@ -7,255 +7,149 @@
     <link href="./dist/output.css" rel="stylesheet">
     <script src="https://unpkg.com/feather-icons"></script>
     <style>
-        /* Base styles */
-        .dashboard-card {
-            background: white;
-            border-radius: 12px;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-            padding: 1.5rem;
-            transition: all 0.2s ease-out;
-        }
+        /* Base styles (kept mostly the same, adjusted for new elements) */
+        body { color: #333; }
+        .container { max-width: 1200px; margin-left: auto; margin-right: auto; padding-left: 1rem; padding-right: 1rem; }
+        nav { border-bottom: 1px solid #e2e8f0; }
+        nav .max-w-7xl { max-width: 1200px; margin: auto; padding-left: 1rem; padding-right: 1rem; }
+        .sidebar { width: 240px; border-right: 1px solid #e2e8f0; padding-top: 1rem; padding-bottom: 1rem; }
+        .sidebar .nav-item { padding-left: 1.25rem; padding-right: 1.25rem; justify-content: flex-start; }
+        .sidebar .nav-item i { margin-right: 0.5rem; }
+        .main-content { flex: 1; padding: 2rem; }
+        .dashboard-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        .section-title { font-size: 1.5rem; font-weight: 600; color: #4a5568; margin-bottom: 1.5rem; }
+        .dashboard-card { background-color: #fff; border-radius: 0.75rem; padding: 1.5rem; box-shadow: 0 1px 3px rgba(0,0,0,0.05); border: 1px solid #edf2f7; transition: all 0.2s ease-out; }
+        .dashboard-card:hover { box-shadow: 0 5px 15px rgba(0,0,0,0.1); transform: translateY(-3px); }
+        .calendar-section .dashboard-card { padding: 1rem; }
+        .calendar-event { padding: 1rem; margin-bottom: 0.75rem; border-radius: 0.5rem; transition: all 0.2s; }
+        .calendar-event:hover { background-color: #edf2f7; }
+        .calendar-event:last-child { margin-bottom: 0; }
+        .document-section .dashboard-card { padding: 1rem;}
+        .document-item { padding: 1rem; border-bottom: 1px solid #edf2f7; display: flex; align-items: center; gap: 1rem; }
+        .document-item:last-child { border-bottom: none; }
+        .document-item .doc-icon { flex-shrink: 0; } /* Prevent icon from shrinking */
+        .document-item .doc-info { flex-grow: 1; } /* Allow info to take available space */
+        .analytics-section .dashboard-card { padding: 1rem; }
+        .analytics-progress { margin-top: 0.75rem; }
+        .analytics-progress .bg-gray-200 { background-color: #e5e7eb; }
+       .analytics-progress .bg-blue-500, .analytics-progress .bg-green-500, .analytics-progress .bg-yellow-500 { background-color: #4f46e5; }
+        .analytics-progress .bg-green-500 { background-color: #10b981; }
+        .analytics-progress .bg-yellow-500 { background-color: #f59e0b; }
+        .text-title { color: #4a5568; }
+        .text-accent { color: #3b82f6; }
+        .text-normal { color: #718096; }
+        nav .text-xl { font-size: 1.75rem; }
+        nav button i { width: 1.25rem; height: 1.25rem; }
+        nav .gap-4 { gap: 1.25rem; }
+        nav .w-8 { width: 2.5rem; height: 2.5rem; font-size: 1rem; }
+        nav .text-sm { font-size: 1rem; }
 
-        .dashboard-card:hover {
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            transform: translateY(-2px);
-        }
+        /* New and Modified Styles */
+        .stat-card { transition: all 0.2s ease-out;  opacity: 1; transform: none; } /* Remove animation for static mockup */
+        .add-student-btn { background-color: #3b82f6; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s; margin-bottom: 1rem;}
+        .add-student-btn:hover { background-color: #2563eb; }
+        .student-list { margin-bottom: 2rem; }
+        .student-item { display: flex; align-items: center; justify-content: space-between; padding: 0.75rem; border-bottom: 1px solid #edf2f7; }
+        .student-item:last-child { border-bottom: none; }
+        .student-info { display: flex; align-items: center; gap: 1rem; }
+        .student-avatar { width: 2rem; height: 2rem; border-radius: 50%; background-color: #9ca3af; display: flex; justify-content: center; align-items: center; color: white; }
+        .student-details { display: flex; flex-direction: column; }
+        .student-name { font-weight: 500; color: #333; }
+        .student-level { font-size: 0.875rem; color: #6b7280; }
+        .create-doc-btn { background-color: #10b981; color: white; padding: 0.5rem 1rem; border-radius: 0.5rem; cursor: pointer; transition: background-color 0.2s; }
+        .create-doc-btn:hover { background-color: #059669; }
+        .doc-actions { display: flex; gap: 0.5rem; } /* Container for doc actions */
+        .doc-actions button { background: none; border: none; padding: 0; cursor: pointer;} /* Reset button styles */
 
-        /* Calendar styles */
-        .calendar-event {
-            border-left: 4px solid #3b82f6;
-            padding: 0.75rem;
-            margin: 0.5rem 0;
-            background: #f8fafc;
-            border-radius: 0 6px 6px 0;
-            transition: all 0.2s;
-        }
-
-        .calendar-event:hover {
-            background: #f1f5f9;
-            transform: translateX(4px);
-        }
-
-        /* Analytics card animations */
-        @keyframes slideUp {
-            from { transform: translateY(20px); opacity: 0; }
-            to { transform: translateY(0); opacity: 1; }
-        }
-
-        .analytics-card {
-            animation: slideUp 0.3s ease-out forwards;
-        }
-
-        /* Document list styles */
-        .document-item {
-            display: flex;
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            justify-content: center;
             align-items: center;
-            padding: 0.75rem;
-            border-radius: 6px;
-            transition: all 0.2s;
+            z-index: 1000;
         }
-
-        .document-item:hover {
-            background: #f8fafc;
-        }
-
-        /* Navigation styles */
-        .nav-item {
-            padding: 0.75rem 1rem;
-            border-radius: 6px;
-            transition: all 0.2s;
-            display: flex;
-            align-items: center;
-            gap: 0.75rem;
-        }
-
-        .nav-item:hover {
-            background: #f1f5f9;
-        }
-
-        .nav-item.active {
-            background: #3b82f6;
-            color: white;
-        }
-
-        /* Stats card animation */
-        .stat-card {
-            opacity: 0;
-            animation: slideUp 0.3s ease-out forwards;
-        }
-
-        .stat-card:nth-child(1) { animation-delay: 0.1s; }
-        .stat-card:nth-child(2) { animation-delay: 0.2s; }
-        .stat-card:nth-child(3) { animation-delay: 0.3s; }
-        .stat-card:nth-child(4) { animation-delay: 0.4s; }
-
-        /* New Styles for Improved Layout */
-        body {
-            /* font-family: 'sans-serif';  Reverted to default font */
-            color: #333;
-        }
-
-        .container {
-            max-width: 1200px;
-            margin-left: auto;
-            margin-right: auto;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-        nav {
-            border-bottom: 1px solid #e2e8f0;
-        }
-
-        nav .max-w-7xl {
-            max-width: 1200px;
-            margin: auto;
-            padding-left: 1rem;
-            padding-right: 1rem;
-        }
-
-
-        .sidebar {
-            width: 240px;
-            border-right: 1px solid #e2e8f0;
-            padding-top: 1rem;
-            padding-bottom: 1rem;
-        }
-
-        .sidebar .nav-item {
-            padding-left: 1.25rem;
-            padding-right: 1.25rem;
-            justify-content: flex-start;
-        }
-
-        .sidebar .nav-item i {
-            margin-right: 0.5rem;
-        }
-
-
-        .main-content {
-            flex: 1;
+        .modal-content {
+            background-color: white;
             padding: 2rem;
-        }
-
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 1.5rem;
-            margin-bottom: 2rem;
-        }
-
-        .section-title {
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: #4a5568;
-            margin-bottom: 1.5rem;
-        }
-
-        /* Refined card styles - more subtle shadow, cleaner look */
-        .dashboard-card {
-            background-color: #fff;
             border-radius: 0.75rem;
-            padding: 1.5rem;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
-            border: 1px solid #edf2f7;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 80%;
+            max-width: 500px;
+        }
+        .modal-close {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            cursor: pointer;
+            background: none;
+            border: none;
+        }
+        .modal-content h3 {
+            margin-top: 0;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+            font-weight: 600;
+        }
+        .modal-content label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+        }
+        .modal-content input[type="text"], .modal-content input[type="email"] {
+            width: 100%;
+            padding: 0.5rem;
+            margin-bottom: 1rem;
+            border: 1px solid #cbd5e0;
+            border-radius: 0.375rem;
+        }
+        .modal-content button[type="submit"] {
+            background-color: #3b82f6;
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 0.375rem;
+            cursor: pointer;
+            width: 100%;
+            transition: background-color 0.2s;
+        }
+        .modal-content button[type="submit"]:hover {
+            background-color: #2563eb;
         }
 
-        .dashboard-card:hover {
-            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            transform: translateY(-3px);
+          /* Student list styles */
+        .student-pill {
+            display: inline-flex;
+            align-items: center;
+            background-color: #f1f5f9;
+            border-radius: 9999px;
+            padding: 0.25rem 0.75rem;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+        .student-pill-avatar {
+            width: 1.5rem;
+            height: 1.5rem;
+            border-radius: 50%;
+            background-color: #9ca3af;
+            color: white;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            margin-right: 0.375rem;
+            font-size: 0.75rem;
+        }
+        #bulk-create-btn {
+             margin-left: 1rem;
         }
 
-        .calendar-section .dashboard-card {
-            padding: 1rem;
-        }
-
-        .calendar-event {
-            padding: 1rem;
-            margin-bottom: 0.75rem;
-            border-radius: 0.5rem;
-        }
-
-        .calendar-event:last-child {
-            margin-bottom: 0;
-        }
-
-        .document-section .dashboard-card {
-            padding: 1rem;
-        }
-
-        .document-item {
-            padding: 1rem;
-            border-bottom: 1px solid #edf2f7;
-        }
-
-        .document-item:last-child {
-            border-bottom: none;
-        }
-
-        .analytics-section .dashboard-card {
-            padding: 1rem;
-        }
-
-        .analytics-progress {
-            margin-top: 0.75rem;
-        }
-
-        .analytics-progress .bg-gray-200 {
-            background-color: #e5e7eb;
-        }
-
-        .analytics-progress .bg-blue-500,
-        .analytics-progress .bg-green-500,
-        .analytics-progress .bg-yellow-500 {
-            background-color: #4f46e5;
-        }
-        .analytics-progress .bg-green-500 {
-            background-color: #10b981;
-        }
-        .analytics-progress .bg-yellow-500 {
-            background-color: #f59e0b;
-        }
-
-
-        /* Utility classes for text colors - more semantic class names */
-        .text-title {
-            color: #4a5568;
-        }
-
-        .text-accent {
-            color: #3b82f6;
-        }
-
-        .text-normal {
-            color: #718096;
-        }
-
-        /* Top Navigation Styles */
-        nav .text-xl { /* Increased font size for TeachFlow */
-            font-size: 1.75rem;
-        }
-
-        nav button i { /* Slightly larger icons in top nav */
-            width: 1.25rem;
-            height: 1.25rem;
-        }
-
-        nav .gap-4 { /* Increased gap between top nav items */
-            gap: 1.25rem;
-        }
-
-        nav .w-8 { /* Slightly larger profile avatar */
-            width: 2.5rem;
-            height: 2.5rem;
-        }
-        nav .w-8 {
-            font-size: 1rem; /* Adjust font size in avatar */
-        }
-        nav .text-sm { /* Adjusted user name font size */
-            font-size: 1rem;
-        }
-    </style>
+</style>
 </head>
 <body class="bg-gray-50 min-h-screen">
     <!-- Top Navigation -->
@@ -339,43 +233,103 @@
                 </div>
             </section>
 
+             <!-- Students Section (NEW) -->
+            <section class="students-section">
+                <div class="flex justify-between items-center">
+                    <h2 class="section-title">Students</h2>
+                    <button class="add-student-btn" onclick="openModal()">Add Student</button>
+                </div>
+                
+                <!-- Modal -->
+                <div id="studentModal" class="modal">
+                    <div class="modal-content">
+                        <button class="modal-close" onclick="closeModal()">×</button>
+                        <h3>Add New Student</h3>
+                        <form id="addStudentForm">
+                            <label for="studentName">Name</label>
+                            <input type="text" id="studentName" name="studentName" required>
+                            
+                            <label for="studentEmail">Email</label>
+                            <input type="email" id="studentEmail" name="studentEmail" required>
+
+                            <label for="studentLevel">Level</label>
+                            <input type="text" id="studentLevel" name="studentLevel" required>
+
+                            <label for="studentGoals">Learning Goals</label>
+                            <input type="text" id="studentGoals" name="studentGoals" required>
+
+                            <label for="studentPlan">Future Plan</label>
+                            <input type="text" id="studentPlan" name="studentPlan" required>
+                            
+                            <button type="submit">Add Student</button>
+                        </form>
+                    </div>
+                </div>
+
+                 <!-- Student Pills (NEW) -->
+                <div class="student-list">
+                    <div class="student-pill">
+                        <span class="student-pill-avatar">SJ</span>
+                        <span>Sarah J.</span>
+                    </div>
+                    <div class="student-pill">
+                        <span class="student-pill-avatar">MC</span>
+                        <span>Michael C.</span>
+                    </div>
+                    <div class="student-pill">
+                        <span class="student-pill-avatar">EW</span>
+                        <span>Emma W.</span>
+                    </div>
+                    <!-- Add more student pills as needed -->
+                </div>
+            </section>
+
             <!-- Shared Documents Section -->
             <section class="document-section">
                 <div class="dashboard-card mb-8">
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="section-title">Shared Documents</h2>
-                        <button class="text-blue-500 hover:text-blue-600">View All</button>
+                        <div>
+                             <button class="create-doc-btn" onclick="createDocument()">Create Document</button>
+                             <button class="create-doc-btn" id="bulk-create-btn" onclick="bulkCreateDocuments()">Bulk Create</button>
+                        </div>
                     </div>
                     <div class="space-y-2">
                         <div class="document-item">
-                            <i data-feather="file-text" class="w-5 h-5 text-blue-500 mr-3"></i>
-                            <div class="flex-1">
+                            <i data-feather="file-text" class="w-5 h-5 text-blue-500 mr-3 doc-icon"></i>
+                            <div class="doc-info">
                                 <h3 class="font-medium text-gray-800">Business English Vocabulary List</h3>
                                 <p class="text-sm text-gray-500">Shared with Sarah Johnson • 2 days ago</p>
                             </div>
-                            <button class="p-2 hover:bg-gray-100 rounded-full">
-                                <i data-feather="more-vertical" class="w-5 h-5 text-gray-400"></i>
-                            </button>
+                              <div class="doc-actions">
+                                <button><i data-feather="share-2" class="w-4 h-4 text-gray-500"></i></button>
+                                <button><i data-feather="edit" class="w-4 h-4 text-gray-500"></i></button>
+                                <button><i data-feather="trash-2" class="w-4 h-4 text-gray-500"></i></button>
+                            </div>
                         </div>
                         <div class="document-item">
-                            <i data-feather="file-text" class="w-5 h-5 text-green-500 mr-3"></i>
-                            <div class="flex-1">
+                            <i data-feather="file-text" class="w-5 h-5 text-green-500 mr-3 doc-icon"></i>
+                            <div class="doc-info">
                                 <h3 class="font-medium text-gray-800">Spanish Grammar Exercises</h3>
                                 <p class="text-sm text-gray-500">Shared with Michael Chen • 4 days ago</p>
                             </div>
-                            <button class="p-2 hover:bg-gray-100 rounded-full">
-                                <i data-feather="more-vertical" class="w-5 h-5 text-gray-400"></i>
-                            </button>
+                            <div class="doc-actions">
+                                <button><i data-feather="share-2" class="w-4 h-4 text-gray-500"></i></button>
+                                <button><i data-feather="edit" class="w-4 h-4 text-gray-500"></i></button>
+                                <button><i data-feather="trash-2" class="w-4 h-4 text-gray-500"></i></button>
+                            </div>
                         </div>
                         <div class="document-item">
-                            <i data-feather="file-text" class="w-5 h-5 text-yellow-500 mr-3"></i>
-                            <div class="flex-1">
-                                <h3 class="font-medium text-gray-800">IELTS Writing Samples</h3>
+                            <i data-feather="file-text" class="w-5 h-5 text-yellow-500 mr-3 doc-icon"></i>
+                            <div class="doc-info">
+                                 <h3 class="font-medium text-gray-800">IELTS Writing Samples</h3>
                                 <p class="text-sm text-gray-500">Shared with Emma Watson • 1 week ago</p>
                             </div>
-                            <button class="p-2 hover:bg-gray-100 rounded-full">
-                                <i data-feather="more-vertical" class="w-5 h-5 text-gray-400"></i>
-                            </button>
+                           <div class="doc-actions">
+                                <button><i data-feather="share-2" class="w-4 h-4 text-gray-500"></i></button>
+                                <button><i data-feather="edit" class="w-4 h-4 text-gray-500"></i></button>
+                                <button><i data-feather="trash-2" class="w-4 h-4 text-gray-500"></i></button>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -478,6 +432,30 @@
 
     <script>
         feather.replace();
+
+        // Modal functions
+        function openModal() {
+            document.getElementById('studentModal').style.display = 'flex';
+        }
+        function closeModal() {
+            document.getElementById('studentModal').style.display = 'none';
+        }
+
+        // Prevent form submission (for mockup)
+        document.getElementById('addStudentForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            alert('Student added (Mockup - Form not actually submitted)');
+            closeModal();
+        });
+
+         // Mockup function for creating a document
+        function createDocument() {
+            alert('Document created (Mockup)');
+        }
+        function bulkCreateDocuments() {
+            alert('Bulk Document created (Mockup)');
+        }
+
     </script>
 </body>
-</html> 
+</html>
